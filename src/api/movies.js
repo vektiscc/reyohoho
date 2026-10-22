@@ -386,13 +386,8 @@ const getTopTimingSubmitters = async (...args) =>
   callWithProvider('getTopTimingSubmitters', ...args)
 const getAllTimingSubmissions = async (...args) =>
   callWithProvider('getAllTimingSubmissions', ...args)
-const getRandomMovie = async (...args) => {
-  const provider = getCurrentProvider()
-  if (provider === CONTENT_PROVIDERS.LOCAL || provider === CONTENT_PROVIDERS.BACKEND) {
-    return callWithProvider('getRandomMovie', ...args)
-  }
-  return (await loadProvider(CONTENT_PROVIDERS.KINOBOX)).getRandomMovie(...args)
-}
+const getRandomMovie = async (...args) =>
+  (await loadProvider(CONTENT_PROVIDERS.BACKEND)).getRandomMovie(...args)
 const approveTiming = async (...args) => callWithProvider('approveTiming', ...args)
 const rejectTiming = async (...args) => callWithProvider('rejectTiming', ...args)
 const markAsCleanText = async (...args) => callWithProvider('markAsCleanText', ...args)
