@@ -158,7 +158,8 @@ const getAllTimingSubmissions = async () => {
 
 const getRandomMovie = async () => {
   const { data } = await apiCall((api) => api.get('/chance'))
-  return data
+  const kpId = data?.kp_id || data?.id || data?.kinopoisk_id || data?.raw_data?.film_id
+  return kpId ? { ...data, id: kpId, kp_id: String(kpId) } : data
 }
 
 const approveTiming = async (submissionId) => {
