@@ -5,12 +5,40 @@ const apiCall = async (callFn) => {
   return await callFn(api)
 }
 
+const sizePoster = (url) => {
+  const value = String(url || '')
+  if (!value) return ''
+  const full = value.startsWith('//') ? `https:${value}` : value
+  if (!full.includes('yandex.net')) return full
+  return /\/(?:orig|\d+x\d*)$/.test(full) ? full : `${full.replace(/\/$/, '')}/300x450`
+}
+
+const withCardFields = (movie) => {
+  if (!movie || typeof movie !== 'object') return movie
+  const kpId = movie.kp_id || movie.id || movie.kinopoisk_id || movie.raw_data?.film_id
+  const poster = sizePoster(
+    movie.poster ||
+      movie.poster_url_preview ||
+      movie.poster_url ||
+      movie.raw_data?.posterUrlPreview ||
+      movie.raw_data?.posterUrl
+  )
+  return {
+    ...movie,
+    id: movie.id ?? kpId,
+    kp_id: kpId ? String(kpId) : movie.kp_id,
+    title: movie.title || movie.name_ru || movie.name_original || movie.name_en || '',
+    poster,
+    poster_url: poster,
+    poster_url_preview: poster
+  }
+}
 // ===== API-функции =====
 const apiSearch = async (searchTerm, requestConfig = {}) => {
   const { data } = await apiCall((api) =>
     api.get(`/search/${encodeURIComponent(searchTerm)}`, requestConfig)
   )
-  return data
+  return Array.isArray(data) ? data.map(withCardFields) : data
 }
 
 const getShikiInfo = async (shikiId, requestConfig = {}) => {
@@ -48,7 +76,7 @@ const getMovies = async ({
   const { data } = await apiCall((api) =>
     api.get(`/top/${activeTime}?type=${typeFilter}${limitParam}${pageParam}`)
   )
-  return data
+  return Array.isArray(data) ? data.map(withCardFields) : data
 }
 
 const getDiscussedMovies = async (type = 'hot', { page = null, limit = null } = {}) => {
@@ -158,8 +186,7 @@ const getAllTimingSubmissions = async () => {
 
 const getRandomMovie = async () => {
   const { data } = await apiCall((api) => api.get('/chance'))
-  const kpId = data?.kp_id || data?.id || data?.kinopoisk_id || data?.raw_data?.film_id
-  return kpId ? { ...data, id: kpId, kp_id: String(kpId) } : data
+  return withCardFields(data)
 }
 
 const approveTiming = async (submissionId) => {

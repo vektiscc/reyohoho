@@ -327,7 +327,7 @@ const getMovies = async (...args) => {
   }
   if (!KINOBD_ENABLED) {
     return normalizeMovieListResponse(
-      await (await loadProvider(CONTENT_PROVIDERS.KINOBOX)).getTopMovies(...args),
+      await (await loadProvider(CONTENT_PROVIDERS.BACKEND)).getMovies(...args),
       { enrichMissingSeo: shouldEnrichListSeo }
     )
   }
