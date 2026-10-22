@@ -626,8 +626,10 @@ def kp_image_url(value: Any, size: str | None = None) -> str:
         return ""
     if url.startswith("//"):
         url = f"https:{url}"
-    if size and "avatars.mds.yandex.net" in url:
+    if size and "yandex.net" in url:
         url = re.sub(r"/(?:orig|\d+x(?:\d+)?)$", "", url.rstrip("/"))
+        if "avatars.mds.yandex.net" not in url and size.endswith("x"):
+            size = "300x450"
         return f"{url}/{size}"
     return url
 
